@@ -20,14 +20,7 @@ class Transaction:
     #---------------------------------------------------------------------
     
     def __init__(self, transaction_type : str, date : str, amount : float, vendor : str, category : str, note : str):
-        self.transaction_type = transaction_type
-        self.date = date
-        if not isinstance(amount, float):
-            raise ValueError("Amount in not a float")
-        self.amount = amount
-        self.vendor = vendor
-        self.category = category
-        self.note = note    
+       self.edit(transaction_type, date, amount, vendor, category, note)   
 
     def edit(self, transaction_type, date, amount, vendor, category, note):
     #--------------------------------------------------------------------------------------    
