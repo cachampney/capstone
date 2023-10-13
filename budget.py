@@ -2,6 +2,8 @@
 Module containing budget class
 """
 
+from .transaction import Transaction
+
 
 class Budget:
     """
