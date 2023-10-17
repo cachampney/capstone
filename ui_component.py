@@ -1,17 +1,19 @@
 # ui_component.py
 import os, re
+
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, \
     QListWidget, QListWidgetItem, QMessageBox, QFileDialog, QComboBox, QTableWidget, QTableWidgetItem
 from transaction import Transaction
 from budget import Budget
 
 
+
 class BudgetTrackerApp(QWidget):
 
-    # Import global row, transaction, and budget varible. This will make manipulating these in the methods much easier
-    #to work with.
+    # Import global row, transaction, and budget variable. This will make manipulating these in the methods much easier
+    # to work with.
     row = 0
-    transaction = Transaction()
     budget = Budget()
 
     def __init__(self):
@@ -128,47 +130,55 @@ class BudgetTrackerApp(QWidget):
             self.date.setFocus()
             return
 
-        # Update transaction object then add it to the table.
-        self.transaction.edit(self.transaction_type.currentText(), self.date.text(), float(self.transaction_amount.text()),
+        # Create a new Transaction object.
+        transaction = Transaction()
+
+        # Clear the table so we can then re-import the expense and income tables from the budget class. Set row count to
+        # 0 so it clears out the empty rows.
+        self.transaction_table.setRowCount(0)
+        self.row = 0
+
+        # Update transaction object.
+        transaction.edit(self.transaction_type.currentText(), self.date.text(), float(self.transaction_amount.text()),
                               self.vendor.text(), self.transaction_category.currentText(), self.transaction_note.text())
 
-        self.transaction_table.insertRow(self.row)
-        self.transaction_table.setItem(self.row, 0, QTableWidgetItem(self.transaction.date))
-        self.transaction_table.setItem(self.row, 1, QTableWidgetItem(self.transaction.transaction_type))
-        self.transaction_table.setItem(self.row, 2, QTableWidgetItem(str(self.transaction.amount)))
-        self.transaction_table.setItem(self.row, 3, QTableWidgetItem(self.transaction.vendor))
-        self.transaction_table.setItem(self.row, 4, QTableWidgetItem(self.transaction.category))
-        self.transaction_table.setItem(self.row, 5, QTableWidgetItem(self.transaction.note))
-        self.row += 1
+        # Update budget class. This will allow us to save and load budgets easier as well as update the table.
+        self.budget.add_transaction(transaction)
+
+        # Pull the attributes out from both expense and income lists and insert them into the table.
+        self.add_expense_list_to_table()
+        self.add_income_list_to_table()
+
+        # Update table
         self.transaction_table.update()
 
-        # Update budget class. This will allow us to save and load budgets easier.
-        self.budget.add_transaction(self.transaction)
         # Clear fields for end user
         self.clear_ui()
+
         # Update total expenses, income and balance
         self.update_under_table_hud()
 
     def remove_transaction(self):
-        selected_items = self.transaction_table.selectedItems()
 
-        # updating the transaction variable to match what is in the row. Easiest way to delete them out of the budget
-        #module
-        if selected_items:
-            selected_row = selected_items[0].row()
+        # Set selected item to the currently clicked item
+        selected_item = self.transaction_table.selectedItems()
 
-            self.transaction_table.setItem(selected_row, 0, QTableWidgetItem(self.transaction.date))
-            self.transaction_table.setItem(selected_row, 1, QTableWidgetItem(self.transaction.transaction_type))
-            self.transaction_table.setItem(selected_row, 2, QTableWidgetItem(str(self.transaction.amount)))
-            self.transaction_table.setItem(selected_row, 3, QTableWidgetItem(self.transaction.vendor))
-            self.transaction_table.setItem(selected_row, 4, QTableWidgetItem(self.transaction.category))
-            self.transaction_table.setItem(selected_row, 5, QTableWidgetItem(self.transaction.note))
+        if selected_item:
+            # gives us the row int, which is important for removing income/expense objects
+            selected_row = selected_item[0].row()
 
+            remove_transaction = self.transaction_table.item(selected_row, 0)
+            transaction_obj = remove_transaction.data(Qt.UserRole)
+
+            # Remove the row from the table itself
             self.transaction_table.removeRow(selected_row)
-            self.budget.delete_transaction(self.transaction)
+
+            # Remove the transaction object from its respective list
+            self.budget.delete_transaction(transaction_obj)
+
+            self.row -= 1
         else:
             QMessageBox.warning(self, "Remove Transaction", "No row was selected.")
-        self.row -= 1
 
         self.update_under_table_hud()
 
@@ -239,6 +249,43 @@ class BudgetTrackerApp(QWidget):
         self.vendor.clear()
         self.transaction_type.setFocus()
 
+    def add_expense_list_to_table(self):
+        for row, expense_transaction in enumerate(self.budget.expense_transactions):
+
+            # Create a variable so we can store the object into the QTableWidget. This will allow us to pull this
+            # exact object back out when we delete it from the table.
+            expense_object_date = QTableWidgetItem(expense_transaction.date)
+            expense_object_date.setData(Qt.UserRole, expense_transaction)
+
+
+            # Add expense transaction to the table
+            self.transaction_table.insertRow(self.row)
+            self.transaction_table.setItem(self.row, 0, expense_object_date)
+            self.transaction_table.setItem(self.row, 1, QTableWidgetItem(expense_transaction.transaction_type))
+            self.transaction_table.setItem(self.row, 2, QTableWidgetItem(str(expense_transaction.amount)))
+            self.transaction_table.setItem(self.row, 3, QTableWidgetItem(expense_transaction.vendor))
+            self.transaction_table.setItem(self.row, 4, QTableWidgetItem(expense_transaction.category))
+            self.transaction_table.setItem(self.row, 5, QTableWidgetItem(expense_transaction.note))
+            self.row += 1 # keep track of the universal row. Will need this for both lists
+
+
+    def add_income_list_to_table(self):
+        for row, income_transaction in enumerate(self.budget.income_transactions):
+
+            # Create a variable so we can store the object into the QTableWidget. This will allow us to pull this
+            # exact object back out when we delete it from the table.
+            income_object_date = QTableWidgetItem(income_transaction.date)
+            income_object_date.setData(Qt.UserRole, income_transaction)
+
+            # Add income transaction to table
+            self.transaction_table.insertRow(self.row)
+            self.transaction_table.setItem(self.row, 0, income_object_date)
+            self.transaction_table.setItem(self.row, 1, QTableWidgetItem(income_transaction.transaction_type))
+            self.transaction_table.setItem(self.row, 2, QTableWidgetItem(str(income_transaction.amount)))
+            self.transaction_table.setItem(self.row, 3, QTableWidgetItem(income_transaction.vendor))
+            self.transaction_table.setItem(self.row, 4, QTableWidgetItem(income_transaction.category))
+            self.transaction_table.setItem(self.row, 5, QTableWidgetItem(income_transaction.note))
+            self.row += 1  # keep track of the universal row. Will need this for both lists
 
 if __name__ == "__main__":
 
