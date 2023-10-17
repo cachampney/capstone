@@ -2,7 +2,7 @@
 Module containing budget class
 """
 
-from .transaction import Transaction
+from transaction import Transaction
 
 
 class Budget:
@@ -28,10 +28,10 @@ class Budget:
         # validate transaction
         if not transaction or not isinstance(transaction, Transaction):
             raise ValueError("Transaction must not be empty and must be of type Transaction")
-        if transaction.transaction_type == 'income':
+        if transaction.transaction_type == 'Income':
             self.income_transactions.append(transaction)
             self.total_income += transaction.amount
-        if transaction.transaction_type == 'expense':
+        if transaction.transaction_type == 'Expense':
             self.expense_transactions.append(transaction)
             self.total_expenses += transaction.amount
         self.balance = self.total_income - self.total_expenses  # update balance
@@ -47,14 +47,14 @@ class Budget:
         """
         if not transaction or not isinstance(transaction, Transaction):
             raise ValueError("Transaction must not be empty and must be of type Transaction")
-        if transaction.transaction_type == 'income':
+        if transaction.transaction_type == 'Income':
             try:
                 self.income_transactions.remove(transaction)
             except ValueError:
                 return False
             else:
                 self.total_income -= transaction.amount
-        if transaction.transaction_type == 'expense':
+        if transaction.transaction_type == 'Expense':
             try:
                 self.expense_transactions.remove(transaction)
             except ValueError:
