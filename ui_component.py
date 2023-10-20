@@ -3,23 +3,47 @@ import os, re
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, \
-    QListWidget, QListWidgetItem, QMessageBox, QFileDialog, QComboBox, QTableWidget, QTableWidgetItem
+     QListWidgetItem, QMessageBox, QFileDialog, QComboBox, QTableWidget, QTableWidgetItem, QTabWidget
 from transaction import Transaction
 from budget import Budget
 
 
-
-class BudgetTrackerApp(QWidget):
+class BudgetTrackerApp(QTabWidget):
 
     # Import global row, transaction, and budget variable. This will make manipulating these in the methods much easier
-    # to work with.
     row = 0
     budget = Budget()
+    column_order = Qt.DescendingOrder
 
     def __init__(self):
 
             super().__init__()
 
+            '''
+            This section is meant to assign the values to the initial windows and tabs. 
+            '''
+
+            # Create the two tabs
+            self.budget_tracker_tab = QWidget()
+            self.expense_goal_tab = QWidget()
+
+
+            # Set up the layout
+            budget_tracker_tab_layout = QVBoxLayout()
+            self.budget_tracker_tab.setLayout(budget_tracker_tab_layout)
+
+            expense_goal_tab_layout = QVBoxLayout()
+            self.expense_goal_tab.setLayout(expense_goal_tab_layout)
+
+            self.addTab(self.budget_tracker_tab, "Transaction Tracker")
+            self.addTab(self.expense_goal_tab, "Expense Goals")
+
+            self.setWindowTitle("Budget Tracker")
+            self.setGeometry(900, 200, 800, 600)
+
+            '''
+            Begin block of code for the Transaction tracker. 
+            '''
             # UI Widgets
             self.transaction_type = QComboBox()
             self.date = QLineEdit()
@@ -31,11 +55,7 @@ class BudgetTrackerApp(QWidget):
             self.transaction_table = QTableWidget()
             self.total_expenses_label = QLabel(f"Total Expenses: {self.budget.total_expenses}")
             self.total_income_label = QLabel(f"Total Income: {self.budget.total_income}")
-            self.balance_label = QLabel("Balance:")
-
-            # Set the number of columns to match the expected input and name them.
-            self.transaction_table.setColumnCount(6)
-            self.transaction_table.setHorizontalHeaderLabels(["Date", "Type", "Amount", "Vendor", "Category", "Note"])
+            self.balance_label = QLabel(f"Balance: {self.budget.balance}")
 
             # Adding pre-determined strings for Transaction Type and Category drop down boxes
             self.transaction_type.addItem("Expense")
@@ -62,12 +82,9 @@ class BudgetTrackerApp(QWidget):
             self.load_transaction_button.clicked.connect(self.load_budget_dialog)
             self.delete_transaction_button.clicked.connect(self.delete_budget_dialog)
 
-            # Verify transaction amount, date format, and character length on note
+            # Verify transaction amount and date format
             self.date.editingFinished.connect(self.validate_date)
-            self.transaction_amount.editingFinished.connect(self.validate_transaction_amount)
-
-            # Set up the layout
-            layout = QVBoxLayout()
+            self.transaction_amount.editingFinished.connect(self.validate_amount)
 
             # Add Transaction Type and date on the first row
             budget_first_row_layout = QHBoxLayout()
@@ -75,7 +92,7 @@ class BudgetTrackerApp(QWidget):
             budget_first_row_layout.addWidget(self.transaction_type)
             budget_first_row_layout.addWidget(QLabel("Date:"))
             budget_first_row_layout.addWidget(self.date)
-            layout.addLayout(budget_first_row_layout)
+            budget_tracker_tab_layout.addLayout(budget_first_row_layout)
 
             # Add Vendor and Transaction Amount to the second row
             budget_second_row_layout = QHBoxLayout()
@@ -83,7 +100,7 @@ class BudgetTrackerApp(QWidget):
             budget_second_row_layout.addWidget(self.vendor)
             budget_second_row_layout.addWidget(QLabel("Transaction Amount:"))
             budget_second_row_layout.addWidget(self.transaction_amount)
-            layout.addLayout(budget_second_row_layout)
+            budget_tracker_tab_layout.addLayout(budget_second_row_layout)
 
             # Add Transaction Note and Category drop down box onto the third row
             budget_third_row_layout = QHBoxLayout()
@@ -91,29 +108,107 @@ class BudgetTrackerApp(QWidget):
             budget_third_row_layout.addWidget(self.transaction_note)
             budget_third_row_layout.addWidget(QLabel("Category:"))
             budget_third_row_layout.addWidget(self.transaction_category)
-            layout.addLayout(budget_third_row_layout)
+            budget_tracker_tab_layout.addLayout(budget_third_row_layout)
 
             # Add "add/remove transaction buttons" onto the fourth row
             budget_fourth_row_layout = QHBoxLayout()
             budget_fourth_row_layout.addWidget(self.add_transaction_button)
             budget_fourth_row_layout.addWidget(self.remove_transaction_button)
-            layout.addLayout(budget_fourth_row_layout)
+            budget_tracker_tab_layout.addLayout(budget_fourth_row_layout)
 
             # Add buttons to save, delete, and load a budget
-            layout.addWidget(self.save_transaction_button)
-            layout.addWidget(self.load_transaction_button)
-            layout.addWidget(self.delete_transaction_button)
+            budget_tracker_tab_layout.addWidget(self.save_transaction_button)
+            budget_tracker_tab_layout.addWidget(self.load_transaction_button)
+            budget_tracker_tab_layout.addWidget(self.delete_transaction_button)
+
+            # Set the number of columns to match the expected input and name them.
+            self.transaction_table.setColumnCount(6)
+            self.transaction_table.setHorizontalHeaderLabels(["Date", "Type", "Amount", "Vendor", "Category", "Note"])
 
             # Add display to show list of transactions
-            layout.addWidget(self.transaction_table)
+            budget_tracker_tab_layout.addWidget(self.transaction_table)
+            self.transaction_table.horizontalHeader().sectionClicked.connect(self.sort_table)
 
             # Add the labels to the layout
-            layout.addWidget(self.total_expenses_label)
-            layout.addWidget(self.total_income_label)
-            layout.addWidget(self.balance_label)
+            budget_tracker_tab_layout.addWidget(self.total_expenses_label)
+            budget_tracker_tab_layout.addWidget(self.total_income_label)
+            budget_tracker_tab_layout.addWidget(self.balance_label)
 
-            self.setLayout(layout)
-            self.setWindowTitle("Budget Tracker")
+            '''
+            end block of code for the transition tracker and begin code for expense goal.
+            '''
+
+            # UI Widgets
+            self.name_of_goal = QLineEdit()
+            self.begin_date = QLineEdit()
+            self.end_date = QLineEdit()
+            self.amount_spent = QLineEdit()
+            self.date_spent = QLineEdit()
+            self.amount_goal = QLineEdit()
+            self.expense_goal_notes = QLineEdit()
+            self.expense_goal_notes.setMaxLength(150)
+            self.expense_goal_table = QTableWidget()
+
+            # Create buttons
+            self.add_goal_button = QPushButton("Add Goal")
+            self.edit_goal_button = QPushButton("Edit Goal")
+
+            # Connect buttons to their respective functions
+            '''
+            follow a similar approach to above. Recycle what you can below 
+            '''
+
+            # Verify goal amounts and goal date format
+            self.begin_date.editingFinished.connect(self.validate_date)
+            self.end_date.editingFinished.connect(self.validate_date)
+            self.amount_spent.editingFinished.connect(self.validate_amount)
+            self.amount_goal.editingFinished.connect(self.validate_amount)
+
+            # Add Name of goal to the first row
+            expense_first_row_layout = QHBoxLayout()
+            expense_first_row_layout.addWidget(QLabel("Name of goal: "))
+            expense_first_row_layout.addWidget(self.name_of_goal)
+            expense_first_row_layout.addWidget(QLabel("Amount goal: "))
+            expense_first_row_layout.addWidget(self.amount_goal)
+            expense_goal_tab_layout.addLayout(expense_first_row_layout)
+
+            # Add Begin date and End date to the second row
+            expense_second_row_layout = QHBoxLayout()
+            expense_second_row_layout.addWidget(QLabel("Begin date: "))
+            expense_second_row_layout.addWidget(self.begin_date)
+            expense_second_row_layout.addWidget(QLabel("End date: "))
+            expense_second_row_layout.addWidget(self.end_date)
+            expense_goal_tab_layout.addLayout(expense_second_row_layout)
+
+            # Add Amount spent, Date spent, and amount goal to the third row
+            expense_third_row_layout = QHBoxLayout()
+            expense_third_row_layout.addWidget(QLabel("Amount spent: "))
+            expense_third_row_layout.addWidget(self.amount_spent)
+            expense_third_row_layout.addWidget(QLabel("Date spent: "))
+            expense_third_row_layout.addWidget(self.date_spent)
+            expense_goal_tab_layout.addLayout(expense_third_row_layout)
+
+            # Add Category and Goal amount to the fourth row
+            expense_fourth_row_layout = QHBoxLayout()
+            expense_fourth_row_layout.addWidget(QLabel("Category: "))
+            expense_fourth_row_layout.addWidget(self.transaction_category)
+            expense_fourth_row_layout.addStretch(1)
+            expense_fourth_row_layout.addWidget(QLabel(f"Goal amount: ")) #Don't forget to come back to add the goal amt
+            expense_fourth_row_layout.addStretch(1)
+            expense_goal_tab_layout.addLayout(expense_fourth_row_layout)
+
+            # Add buttons to add a goal and edit a goal
+            expense_goal_tab_layout.addWidget(self.add_goal_button)
+            expense_goal_tab_layout.addWidget(self.edit_goal_button)
+
+            # Set the number of columns to match the expected input and name them.
+            self.expense_goal_table.setColumnCount(8)
+            self.expense_goal_table.setHorizontalHeaderLabels(["Goal Name", "Category", "Begin Date", "End Date",
+                                                              "Current Amount", "Goal Amount", "Balance", "Note"])
+
+            # Add display to show list of transactions
+            expense_goal_tab_layout.addWidget(self.expense_goal_table)
+            self.expense_goal_table.horizontalHeader().sectionClicked.connect(self.sort_table)
 
             self.show()
 
@@ -224,7 +319,7 @@ class BudgetTrackerApp(QWidget):
             self.date.clear()
             self.date.setFocus()
 
-    def validate_transaction_amount(self):
+    def validate_amount(self):
         amount = self.transaction_amount.text()
 
         try:
@@ -241,6 +336,7 @@ class BudgetTrackerApp(QWidget):
     def update_under_table_hud(self):
         self.total_expenses_label.setText(f"Total Expenses: {self.budget.total_expenses}")
         self.total_income_label.setText(f"Total Income: {self.budget.total_income}")
+        self.balance_label.setText(f"Balance: {self.budget.balance}")
 
     def clear_ui(self):
         self.transaction_amount.clear()
@@ -268,7 +364,6 @@ class BudgetTrackerApp(QWidget):
             self.transaction_table.setItem(self.row, 5, QTableWidgetItem(expense_transaction.note))
             self.row += 1 # keep track of the universal row. Will need this for both lists
 
-
     def add_income_list_to_table(self):
         for row, income_transaction in enumerate(self.budget.income_transactions):
 
@@ -286,6 +381,17 @@ class BudgetTrackerApp(QWidget):
             self.transaction_table.setItem(self.row, 4, QTableWidgetItem(income_transaction.category))
             self.transaction_table.setItem(self.row, 5, QTableWidgetItem(income_transaction.note))
             self.row += 1  # keep track of the universal row. Will need this for both lists
+
+    def sort_table(self, column):
+
+        if self.column_order == Qt.AscendingOrder:
+            self.transaction_table.sortItems(column, Qt.DescendingOrder)
+            self.column_order = Qt.DescendingOrder
+            return
+        if self.column_order == Qt.DescendingOrder:
+            self.transaction_table.sortItems(column, Qt.AscendingOrder)
+            self.column_order = Qt.AscendingOrder
+
 
 if __name__ == "__main__":
 
