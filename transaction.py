@@ -34,7 +34,6 @@ class Transaction:
         # Go through an text box ties to the variables labled
         # EX. self.amount = amountBox.text (this is how it's done on C# visual studio gui)
         # ^^ (done initially)
-        #
         # --------------------------------------------------------------------------------------
         self.transaction_type = transaction_type
         self.date = date
