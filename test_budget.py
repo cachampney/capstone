@@ -38,3 +38,16 @@ def test_get_transactions_income():
     b.add_transaction(t)
     ts = b.get_transactions(transaction_type='income')
     assert t in ts
+
+
+def test_add_category():
+    b = Budget()
+    b.add_category("pickles")
+    assert 'pickles' in b.categories
+
+def test_remove_category():
+    b = Budget()
+    b.add_category("pickles")
+    assert 'pickles' in b.categories
+    b.remove_category('pickles')
+    assert 'pickles' not in b.categories

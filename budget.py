@@ -2,6 +2,7 @@
 Module containing budget class
 """
 
+
 from transaction import Transaction
 
 
@@ -13,11 +14,13 @@ class Budget:
     def __init__(self):
         self.expense_transactions = []
         self.income_transactions = []
+        self.categories = ["Utilities", "Gas", "Entertainment", "Rent/Housing",
+                           "Groceries", "Other"]
         self.total_expenses = 0
         self.total_income = 0
         self.balance = 0
 
-    def add_transaction(self, transaction):
+    def add_transaction(self, transaction: Transaction):
         """
         Method to add transaction to budget
 
@@ -28,16 +31,16 @@ class Budget:
         # validate transaction
         if not transaction or not isinstance(transaction, Transaction):
             raise ValueError("Transaction must not be empty and must be of type Transaction")
-        if transaction.transaction_type == 'Income':
+        if transaction.transaction_type.lower() == 'income':
             self.income_transactions.append(transaction)
             self.total_income += transaction.amount
-        if transaction.transaction_type == 'Expense':
+        if transaction.transaction_type.lower() == 'expense':
             self.expense_transactions.append(transaction)
             self.total_expenses += transaction.amount
         self.balance = self.total_income - self.total_expenses  # update balance
         return True
 
-    def delete_transaction(self, transaction):
+    def delete_transaction(self, transaction: Transaction):
         """
         Method to delete transaction from budget
 
@@ -47,14 +50,14 @@ class Budget:
         """
         if not transaction or not isinstance(transaction, Transaction):
             raise ValueError("Transaction must not be empty and must be of type Transaction")
-        if transaction.transaction_type == 'Income':
+        if transaction.transaction_type.lower() == 'income':
             try:
                 self.income_transactions.remove(transaction)
             except ValueError:
                 return False
             else:
                 self.total_income -= transaction.amount
-        if transaction.transaction_type == 'Expense':
+        if transaction.transaction_type.lower() == 'expense':
             try:
                 self.expense_transactions.remove(transaction)
             except ValueError:
@@ -88,3 +91,30 @@ class Budget:
                 if trans.get(attribute) == value:
                     trans_to_return.append(trans)
         return trans_to_return
+
+    def add_category(self, category: str):
+        """
+        method to add a category to the budget
+
+        :param category: name of category to add
+        :type category: str
+        :return: None
+        """
+        if not category or not isinstance(category, str):
+            raise ValueError("Category must be non-empty string")
+        self.categories.append(category)
+
+    def remove_category(self, category: str):
+        """
+        method to remove a category from the budget
+
+        :param category: name of category to add
+        :type category: str
+        :return: None
+        """
+        if not category or not isinstance(category, str):
+            raise ValueError("Category must be non-empty string")
+        try:
+            self.categories.remove(category)
+        except ValueError:
+            print(f"Could not delete Category {category}. It was not found in the budget")
