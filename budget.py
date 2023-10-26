@@ -3,6 +3,7 @@ Module containing budget class
 """
 
 
+from goal import Goal
 from transaction import Transaction
 
 
@@ -16,6 +17,7 @@ class Budget:
         self.income_transactions = []
         self.categories = ["Utilities", "Gas", "Entertainment", "Rent/Housing",
                            "Groceries", "Other"]
+        self.expense_goals = {}  # name of goal is key and Goal object is value
         self.total_expenses = 0
         self.total_income = 0
         self.balance = 0
@@ -118,3 +120,43 @@ class Budget:
             self.categories.remove(category)
         except ValueError:
             print(f"Could not delete Category {category}. It was not found in the budget")
+
+    def add_expense_goal(self, goal: Goal):
+        """
+        method to add an expanse goal to the budget
+
+        :param goal: name of category to add
+        :type goal: Goal
+        :return: None
+        """
+        if not goal or not isinstance(goal, Goal):
+            raise ValueError("Goal must be of type Goal")
+        if goal.name in self.expense_goals:
+            raise ValueError(f"Goal with name {goal.name} already exists in budget")
+        self.expense_goals[goal.name] = goal
+
+    def get_expense_goal(self, goal_name: str):
+        """
+        Method to get goal from Budget for specified name
+
+        :param goal_name: name of goal to retrieve from budget
+        :type goal_name: str
+        :return: Goal - desired expense goal
+        """
+        try:
+            return self.expense_goals[goal_name]
+        except KeyError:
+            raise ValueError(f"goal with name {goal_name} not found in budget")
+
+    def delete_expense_goal(self, goal_name: str):
+        """
+        Method to delete goal with specified name from Budget
+
+        :param goal_name: name of goal to delete from budget
+        :type goal_name: str
+        :return: None
+        """
+        try:
+            del self.expense_goals[goal_name]
+        except ValueError:
+            print(f"Could not delete goal {goal_name}. It was not found in the budget")
