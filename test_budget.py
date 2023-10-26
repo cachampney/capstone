@@ -1,11 +1,12 @@
-from ..budget import Budget
-from ..transaction import Transaction
+from budget import Budget
+from transaction import Transaction
 
 
 def test_add_transaction_expense():
     b = Budget()
     t = Transaction("expense", "13/10/2023", 23.23, 'target', 'clothes', "new shirt")
     b.add_transaction(t)
+    print(b.expense_transactions)
     assert t in b.expense_transactions
 
 
@@ -44,6 +45,7 @@ def test_add_category():
     b = Budget()
     b.add_category("pickles")
     assert 'pickles' in b.categories
+
 
 def test_remove_category():
     b = Budget()
