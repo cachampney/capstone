@@ -124,6 +124,8 @@ class Budget:
     def add_expense_goal(self, goal: Goal):
         """
         method to add an expanse goal to the budget
+        storing goal in self.expense_goals dict
+        key is lowercase version of goal name for efficiency
 
         :param goal: name of category to add
         :type goal: Goal
@@ -131,9 +133,9 @@ class Budget:
         """
         if not goal or not isinstance(goal, Goal):
             raise ValueError("Goal must be of type Goal")
-        if goal.name in self.expense_goals:
+        if goal.name.lower() in self.expense_goals:
             raise ValueError(f"Goal with name {goal.name} already exists in budget")
-        self.expense_goals[goal.name] = goal
+        self.expense_goals[goal.name.lower()] = goal
 
     def get_expense_goal(self, goal_name: str):
         """
@@ -144,7 +146,7 @@ class Budget:
         :return: Goal - desired expense goal
         """
         try:
-            return self.expense_goals[goal_name]
+            return self.expense_goals[goal_name.lower()]
         except KeyError:
             raise ValueError(f"goal with name {goal_name} not found in budget")
 
@@ -157,6 +159,6 @@ class Budget:
         :return: None
         """
         try:
-            del self.expense_goals[goal_name]
-        except ValueError:
-            print(f"Could not delete goal {goal_name}. It was not found in the budget")
+            del self.expense_goals[goal_name.lower()]
+        except KeyError:
+            raise ValueError(f"Could not delete goal {goal_name}. It was not found in the budget")
