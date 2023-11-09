@@ -4,14 +4,14 @@ Module for Transaction Class
 
 
 class Transaction:
-    '''
+    """
     transaction_type : str
     date : str
     amount : float
     vendor : str
     category : str
     note : str
-    '''
+    """
     # methods
    
     # ---------------------------------------------------------------------
@@ -49,3 +49,8 @@ class Transaction:
         :return:
         """
         return self.__getattribute__(attribute)
+
+    def to_dict(self):
+        trans_dict = {'transaction_type': self.transaction_type, 'date': self.date, 'amount': self.amount,
+                      'vendor': self.vendor, 'category': self.category, 'note': self.note}
+        return trans_dict

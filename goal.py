@@ -40,3 +40,9 @@ class Goal:
             setattr(self, attribute, value)
         else:
             raise AttributeError(f"'Goal' object has no attribute '{attribute}'")
+
+    def to_dict(self):
+        goal_dict = {'name': self.name, 'start_date': self.start_date, 'end_date': self.end_date, 'note': self.note,
+                     'target_amount': self.target_amount, 'date_spent': self.date_spent, 'category': self.category,
+                     'current_amount': self.current_amount}
+        return goal_dict

@@ -3,6 +3,7 @@ Module containing budget class
 """
 
 
+import json
 from goal import Goal
 from transaction import Transaction
 
@@ -162,3 +163,37 @@ class Budget:
             del self.expense_goals[goal_name.lower()]
         except KeyError:
             raise ValueError(f"Could not delete goal {goal_name}. It was not found in the budget")
+
+    def save_budget(self, filename):
+        """
+        Method to save all budget data to specified file
+
+        :param filename: filename, including path, for save file
+        :type filename: str
+        :return: None
+        """
+        budget_dict = {'total_expenses': self.total_expenses, 'total_income': self.total_income,
+                       'balance': self.balance, 'expense_transactions': [], 'income_transactions': [],
+                       'goals': []}
+        for trans in self.expense_transactions:
+            budget_dict['expense_transactions'].append(trans.to_dict())
+        for trans in self.income_transactions:
+            budget_dict['income_transactions'].append(trans.to_dict())
+        budget_dict['categories'] = self.categories
+        for goal in self.expense_goals.values():
+            budget_dict['goals'].append(goal.to_dict())
+        write_json_to_file(budget_dict, filename)
+
+
+def write_json_to_file(json_data, filename):
+    """
+    Function to write json encode-able data to specified file
+
+    :param json_data: data to write to file
+    :type json_data: str|dict|list|int
+    :param filename: filename, including path, for save file
+    :type filename: str
+    :return: None
+    """
+    #wip
+    pass
