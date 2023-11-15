@@ -4,6 +4,8 @@ Module containing budget class
 
 
 import json
+
+import transaction
 from goal import Goal
 from transaction import Transaction
 
@@ -183,6 +185,31 @@ class Budget:
         for goal in self.expense_goals.values():
             budget_dict['goals'].append(goal.to_dict())
         write_json_to_file(budget_dict, filename)
+
+    def load_budget(self, filename):
+        """
+        Method to load all budget data from specified file
+
+        :param filename: filename, including path, for save file
+        :type filename: str
+        :return: None
+        """
+        budget_dict = read_json_file(filename)
+        self.categories = budget_dict['categories']
+        for trans_dict in budget_dict['expense_transactions']:
+            t = transaction.Transaction(trans_dict['transaction_type'], trans_dict['date'],
+                                        trans_dict['amount'], trans_dict['vendor'], trans_dict['category'],
+                                        trans_dict['note'])
+            self.add_transaction(t)
+        for trans_dict in budget_dict['income_transactions']:
+            t = transaction.Transaction(trans_dict['transaction_type'], trans_dict['date'],
+                                        trans_dict['amount'], trans_dict['vendor'], trans_dict['category'],
+                                        trans_dict['note'])
+            self.add_transaction(t)
+        for goal_dict in budget_dict['goals']:
+            g = Goal(goal_dict["name"], goal_dict["start_date"], goal_dict["end_date"], goal_dict["note"],
+                     goal_dict['target_amount'], goal_dict["date_spent"], goal_dict["category"])
+            self.add_expense_goal(g)
 
 
 def write_json_to_file(json_data, filename):
