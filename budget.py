@@ -195,5 +195,5 @@ def write_json_to_file(json_data, filename):
     :type filename: str
     :return: None
     """
-    #wip
-    pass
+    with open(filename, 'w') as json_file:
+        json.dump(json_data, json_file)
