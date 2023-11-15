@@ -197,3 +197,17 @@ def write_json_to_file(json_data, filename):
     """
     with open(filename, 'w') as json_file:
         json.dump(json_data, json_file)
+
+
+def read_json_file(filename):
+    """
+    Function to open json file and read in data as dictionary
+
+    :param filename: filename, including path, for save file
+    :type filename: str
+    :return: dict - data from file
+    :rtype: dict
+    """
+    with open(filename, 'r') as json_file:
+        data = json.load(json_file)
+    return data
