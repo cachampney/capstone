@@ -72,6 +72,35 @@ class Budget:
         self.balance = self.total_income - self.total_expenses  # update balance
         return True
 
+    def new_transaction_update_goal_amount(self, transaction :Transaction):
+        """
+        Method to update amounts in the goal transaction
+
+        :param transaction: transaction to update the goal amount
+        """
+        goal = self.get_expense_goal(transaction.expense_goal)
+
+        if transaction.transaction_type == "Expense":
+            goal.calc_currentAmount(transaction.amount)
+            return goal
+        else:
+            goal.remove_currentAmount(transaction.amount)
+            return goal
+
+    def update_transaction_expense_goal_cell(self, transaction :Transaction):
+        """
+        Method to update a cell and goal when the ender user updates the expense goal column
+
+        :param transaction: transaction to update a cell in the transaction table
+        """
+        goal = self.get_expense_goal(transaction.expense_goal)
+
+        if transaction.transaction_type == "Expense":
+            goal.remove_currentAmount(transaction.amount)
+            return goal
+        else:
+            goal.calc_currentAmount(transaction.amount)
+            return goal
     def get_transactions(self, **kwargs):
         """
         Method to get list of transactions based on specified attribute values
@@ -197,12 +226,14 @@ class Budget:
         budget_dict = read_json_file(filename)
         self.categories = budget_dict['categories']
         for trans_dict in budget_dict['expense_transactions']:
-            t = transaction.Transaction(trans_dict['transaction_type'], trans_dict['date'],
+            t = Transaction()
+            t.edit(trans_dict['transaction_type'], trans_dict['date'],
                                         trans_dict['amount'], trans_dict['vendor'], trans_dict['category'],
                                         trans_dict['note'])
             self.add_transaction(t)
         for trans_dict in budget_dict['income_transactions']:
-            t = transaction.Transaction(trans_dict['transaction_type'], trans_dict['date'],
+            t = Transaction()
+            t.edit(trans_dict['transaction_type'], trans_dict['date'],
                                         trans_dict['amount'], trans_dict['vendor'], trans_dict['category'],
                                         trans_dict['note'])
             self.add_transaction(t)
