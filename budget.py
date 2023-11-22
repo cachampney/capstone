@@ -238,6 +238,17 @@ class Budget:
             g.update_from_dict(goal_dict)
             self.add_expense_goal(g)
 
+    def delete_budget(self, filename):
+        """
+        Function to delete a saved budget
+
+        :param filename: full filepath of budget save file
+        :type filename: str
+        :return: None
+        """
+        if os.path.exists(filename):
+            os.remove(filename)
+
 
 def write_json_to_file(json_data, filename):
     """
