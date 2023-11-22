@@ -47,7 +47,18 @@ class Goal:
                      'target_amount': self.target_amount, 'date_spent': self.date_spent, 'category': self.category,
                      'current_amount': self.current_amount, 'amount_left': self.amount_left}
         return goal_dict
-    
+
+    def update_from_dict(self, goal_dict):
+        self.name = goal_dict['name']
+        self.start_date = goal_dict['start_date']
+        self.end_date = goal_dict['end_date']
+        self.note = goal_dict['note']
+        self.target_amount = goal_dict['target_amount']
+        self.date_spent = goal_dict['date_spent']
+        self.category = goal_dict['category']
+        self.current_amount = goal_dict['current_amount']
+        self.amount_left = goal_dict['amount_left']
+
     # Sets the current amount left torwards finishing the goal
     def set_startBalance(self):
         self.amount_left = self.target_amount
