@@ -43,6 +43,8 @@ class Budget:
             self.expense_transactions.append(transaction)
             self.total_expenses += transaction.amount
         self.balance = self.total_income - self.total_expenses  # update balance
+        if transaction.expense_goal != "N/A":
+            self.link_transaction_to_expense_goal(transaction, transaction.expense_goal)
         return True
 
     def delete_transaction(self, transaction: Transaction):
