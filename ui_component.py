@@ -298,13 +298,15 @@ class BudgetTrackerApp(QMainWindow):
                               self.vendor.text(), self.transaction_category.currentText(), self.transaction_note.text(),
                          self.expense_goals.currentText())
 
-        # if it's a new goal, and it's an actual goal, then we need to manipulate the goal
-        if transaction.get("expense_goal") != "N/A":
-            goal = self.budget.new_transaction_update_goal_amount(transaction)
-            self.add_expense_goal_list_to_table(goal)
-
         # Update budget class. This will allow us to save and load budgets easier as well as update the table.
         self.budget.add_transaction(transaction)
+
+        # if it's a new goal, and it's an actual goal, then we need to manipulate the goal
+        if transaction.get("expense_goal") != "N/A":
+            # handling updating goal amounts within goal object when transaction is added to budget
+            # goal = self.budget.new_transaction_update_goal_amount(transaction)
+            goal = self.budget.get_expense_goal(transaction.expense_goal)
+            self.add_expense_goal_list_to_table(goal)
 
         # Pull the attributes out from both expense and income lists and insert them into the table.
         self.add_transaction_lists_to_table(transaction)
