@@ -549,13 +549,15 @@ class BudgetTrackerApp(QMainWindow):
                 self.transaction_table.setItem(row, column, QTableWidgetItem(new_input_line.text()))
             elif column == 1:
                 self.budget.delete_transaction(transaction_obj)
-                if transaction_obj.expense_goal != "N/A":
-                    self.budget.update_transaction_expense_goal_cell(transaction_obj)
+                # delete_transaction auto updates goal amounts
+                # if transaction_obj.expense_goal != "N/A":
+                #    self.budget.update_transaction_expense_goal_cell(transaction_obj)
                 transaction_obj.update_attribute("transaction_type", new_input_line.currentText())
                 self.transaction_table.setItem(row, column, QTableWidgetItem(new_input_line.currentText()))
                 self.budget.add_transaction(transaction_obj)
                 if transaction_obj.expense_goal != "N/A":
-                    self.budget.new_transaction_update_goal_amount(transaction_obj)
+                    # add_transaction auto updates goal amounts
+                    # self.budget.new_transaction_update_goal_amount(transaction_obj)
                     goal = self.budget.get_expense_goal(transaction_obj.expense_goal)
                     self.add_expense_goal_list_to_table(goal)
             elif column == 2:
