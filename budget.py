@@ -234,8 +234,8 @@ class Budget:
             t.update_from_dict(trans_dict)
             self.add_transaction(t)
         for goal_dict in budget_dict['goals']:
-            g = Goal(goal_dict["name"], goal_dict["start_date"], goal_dict["end_date"], goal_dict["note"],
-                     goal_dict['target_amount'], goal_dict["date_spent"], goal_dict["category"])
+            g = Goal()
+            g.update_from_dict(goal_dict)
             self.add_expense_goal(g)
 
 
