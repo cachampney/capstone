@@ -72,6 +72,8 @@ class Budget:
             else:
                 self.total_expenses -= transaction.amount
         self.balance = self.total_income - self.total_expenses  # update balance
+        if transaction.expense_goal != "N/A":
+            self.unlink_transaction_from_expense_goal(transaction, transaction.expense_goal)
         return True
 
     def new_transaction_update_goal_amount(self, transaction :Transaction):
