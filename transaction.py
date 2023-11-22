@@ -30,6 +30,15 @@ class Transaction:
         self.note = None
         self.expense_goal = None
 
+    def update_from_dict(self, transaction_dict):
+        self.transaction_type = transaction_dict['transaction_type']
+        self.date = transaction_dict['date']
+        self.amount = transaction_dict['amount']
+        self.vendor = transaction_dict['vendor']
+        self.category = transaction_dict['category']
+        self.note = transaction_dict['note']
+        self.expense_goal = transaction_dict['expense_goal']
+
     def update_attribute(self, attribute, value):
         if hasattr(self, attribute):
             setattr(self, attribute, value)
