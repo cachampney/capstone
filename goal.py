@@ -15,6 +15,7 @@ class Goal:
         self.category = None
         self.current_amount = 0.00
         self.amount_left = 0.00
+        self.transactions = []
 
     def edit(self, name, start_date, end_date, note, target_amount, date_spent, category):
         self.name = name
@@ -80,3 +81,29 @@ class Goal:
         self.current_amount -= trans_amount
         self.amount_left -= self.current_amount
         self.set_updateBalance()
+
+    def apply_transaction(self, transaction):
+        """
+        Method to apply a transaction to the goal
+
+        :param transaction: transaction to apply
+        :type transaction: transactions.Transaction
+        :return: None
+        """
+        self.calc_currentAmount(transaction.amount)
+        self.transactions.append(transaction)
+
+    def remove_transaction(self, transaction):
+        """
+        Method to remove a transaction from the goal
+
+        :param transaction: transaction to remove
+        :type transaction: transactions.Transaction
+        :return: None
+        """
+        try:
+            idx = self.transactions.index(transaction)
+            self.remove_currentAmount(transaction.amount)
+            del self.transactions[idx]
+        except ValueError:
+            pass
