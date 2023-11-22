@@ -373,7 +373,8 @@ class BudgetTrackerApp(QMainWindow):
             return
 
         # create the goal object, then add it to the dictionary
-        goal = Goal(self.name_of_goal.text(), self.begin_date.text(), self.end_date.text(),
+        goal = Goal()
+        goal.edit(self.name_of_goal.text(), self.begin_date.text(), self.end_date.text(),
                     self.expense_goal_notes.text(), (float(self.goal_amount.text())), self.date_spent.text(),
                     self.expense_goal_category.currentText())
 
