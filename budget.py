@@ -249,6 +249,35 @@ class Budget:
         if os.path.exists(filename):
             os.remove(filename)
 
+    def link_transaction_to_expense_goal(self, transaction, expense_goal_name):
+        """
+        Method to link transaction to a goal
+
+        :param transaction: transaction to apply to goal
+        :type transaction: Transaction
+        :param expense_goal_name: Name of expense goal to link transaction to
+        :type expense_goal_name: str
+        :return: None
+        """
+        try:
+            self.expense_goals['expense_goal_name'].apply_transaction(transaction)
+        except KeyError:
+            print('goal does not exist')
+
+    def unlink_transaction_from_expense_goal(self, transaction, expense_goal_name):
+        """
+        Method to remove transaction from expense goal
+
+        :param transaction: transaction to apply to goal
+        :type transaction: Transaction
+        :param expense_goal_name: Name of expense goal to link transaction to
+        :type expense_goal_name: str
+        :return: None
+        """
+        try:
+            self.expense_goals['expense_goal_name'].remove_transaction(transaction)
+        except KeyError:
+            print('goal does not exist in budget')
 
 def write_json_to_file(json_data, filename):
     """
