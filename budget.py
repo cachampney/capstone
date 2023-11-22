@@ -227,15 +227,11 @@ class Budget:
         self.categories = budget_dict['categories']
         for trans_dict in budget_dict['expense_transactions']:
             t = Transaction()
-            t.edit(trans_dict['transaction_type'], trans_dict['date'],
-                                        trans_dict['amount'], trans_dict['vendor'], trans_dict['category'],
-                                        trans_dict['note'])
+            t.update_from_dict(trans_dict)
             self.add_transaction(t)
         for trans_dict in budget_dict['income_transactions']:
             t = Transaction()
-            t.edit(trans_dict['transaction_type'], trans_dict['date'],
-                                        trans_dict['amount'], trans_dict['vendor'], trans_dict['category'],
-                                        trans_dict['note'])
+            t.update_from_dict(trans_dict)
             self.add_transaction(t)
         for goal_dict in budget_dict['goals']:
             g = Goal(goal_dict["name"], goal_dict["start_date"], goal_dict["end_date"], goal_dict["note"],
