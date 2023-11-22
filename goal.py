@@ -90,7 +90,10 @@ class Goal:
         :type transaction: transactions.Transaction
         :return: None
         """
-        self.calc_currentAmount(transaction.amount)
+        if transaction.transaction_type.lower() == 'income':
+            self.remove_currentAmount(transaction.amount)
+        else:
+            self.calc_currentAmount(transaction.amount)
         self.transactions.append(transaction)
 
     def remove_transaction(self, transaction):
@@ -103,7 +106,10 @@ class Goal:
         """
         try:
             idx = self.transactions.index(transaction)
-            self.remove_currentAmount(transaction.amount)
+            if transaction.transaction_type.lower() == 'income':
+                self.calc_currentAmount(transaction.amount)
+            else:
+                self.remove_currentAmount(transaction.amount)
             del self.transactions[idx]
         except ValueError:
             pass
