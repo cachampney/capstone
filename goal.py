@@ -1,7 +1,6 @@
 class Goal:
     
-    def __init__(self, name : str, start_date : str, end_date : str, note : str, target_amount : float,
-                 date_spent : str, category : str):
+    def __init__(self):
         
         """
         Initialize the variables for the class
@@ -16,7 +15,6 @@ class Goal:
         self.category = None
         self.current_amount = 0.00
         self.amount_left = 0.00
-        self.edit(name, start_date, end_date, note, target_amount, date_spent, category)
 
     def edit(self, name, start_date, end_date, note, target_amount, date_spent, category):
         self.name = name
