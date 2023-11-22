@@ -11,6 +11,7 @@ class Transaction:
     vendor : str
     category : str
     note : str
+    expense_goal: str
     """
     # methods
    
@@ -60,5 +61,5 @@ class Transaction:
 
     def to_dict(self):
         trans_dict = {'transaction_type': self.transaction_type, 'date': self.date, 'amount': self.amount,
-                      'vendor': self.vendor, 'category': self.category, 'note': self.note}
+                      'vendor': self.vendor, 'category': self.category, 'note': self.note, 'expense_goal': self.expense_goal}
         return trans_dict
