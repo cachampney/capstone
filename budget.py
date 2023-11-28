@@ -106,6 +106,7 @@ class Budget:
         else:
             goal.calc_currentAmount(transaction.amount)
             return goal
+
     def get_transactions(self, **kwargs):
         """
         Method to get list of transactions based on specified attribute values
@@ -230,6 +231,17 @@ class Budget:
         """
         budget_dict = read_json_file(filename)
         self.categories = budget_dict['categories']
+        for goal_dict in budget_dict['goals']:
+            g = Goal()
+            # g.update_from_dict(goal_dict)
+            g.name = goal_dict['name']
+            g.start_date = goal_dict['start_date']
+            g.end_date = goal_dict['end_date']
+            g.note = goal_dict['note']
+            g.target_amount = goal_dict['target_amount']
+            g.date_spent = goal_dict['date_spent']
+            g.category = goal_dict['category']
+            self.add_expense_goal(g)
         for trans_dict in budget_dict['expense_transactions']:
             t = Transaction()
             t.update_from_dict(trans_dict)
@@ -238,10 +250,6 @@ class Budget:
             t = Transaction()
             t.update_from_dict(trans_dict)
             self.add_transaction(t)
-        for goal_dict in budget_dict['goals']:
-            g = Goal()
-            g.update_from_dict(goal_dict)
-            self.add_expense_goal(g)
 
     def delete_budget(self, filename):
         """
@@ -265,7 +273,7 @@ class Budget:
         :return: None
         """
         try:
-            self.expense_goals['expense_goal_name'].apply_transaction(transaction)
+            self.expense_goals[expense_goal_name.lower()].apply_transaction(transaction)
         except KeyError:
             print('goal does not exist')
 
@@ -280,7 +288,7 @@ class Budget:
         :return: None
         """
         try:
-            self.expense_goals['expense_goal_name'].remove_transaction(transaction)
+            self.expense_goals[expense_goal_name.lower()].remove_transaction(transaction)
         except KeyError:
             print('goal does not exist in budget')
 
