@@ -4,14 +4,15 @@ Module for Transaction Class
 
 
 class Transaction:
-    '''
+    """
     transaction_type : str
     date : str
     amount : float
     vendor : str
     category : str
     note : str
-    '''
+    expense_goal: str
+    """
     # methods
    
     # ---------------------------------------------------------------------
@@ -20,21 +21,35 @@ class Transaction:
     # Need to pull the information from the GUI text boxes initially
     # ---------------------------------------------------------------------
     
-    def __init__(self, transaction_type: str, date: str, amount: float, vendor: str, category: str, note: str):
+    def __init__(self):
         self.transaction_type = None
         self.date = None
         self.amount = None
         self.vendor = None
         self.category = None
         self.note = None
-        self.edit(transaction_type, date, amount, vendor, category, note)
+        self.expense_goal = None
 
-    def edit(self, transaction_type, date, amount, vendor, category, note):
+    def update_from_dict(self, transaction_dict):
+        self.transaction_type = transaction_dict['transaction_type']
+        self.date = transaction_dict['date']
+        self.amount = transaction_dict['amount']
+        self.vendor = transaction_dict['vendor']
+        self.category = transaction_dict['category']
+        self.note = transaction_dict['note']
+        self.expense_goal = transaction_dict['expense_goal']
+
+    def update_attribute(self, attribute, value):
+        if hasattr(self, attribute):
+            setattr(self, attribute, value)
+        else:
+            raise AttributeError(f"'Transaction' object has no attribute '{attribute}'")
+
+    def edit(self, transaction_type, date, amount, vendor, category, note, expense_goal):
         # --------------------------------------------------------------------------------------
         # Go through an text box ties to the variables labled
         # EX. self.amount = amountBox.text (this is how it's done on C# visual studio gui)
         # ^^ (done initially)
-        #
         # --------------------------------------------------------------------------------------
         self.transaction_type = transaction_type
         self.date = date
@@ -42,6 +57,7 @@ class Transaction:
         self.vendor = vendor
         self.category = category
         self.note = note
+        self.expense_goal = expense_goal
 
     def get(self, attribute):
         """
@@ -50,3 +66,9 @@ class Transaction:
         :return:
         """
         return self.__getattribute__(attribute)
+
+
+    def to_dict(self):
+        trans_dict = {'transaction_type': self.transaction_type, 'date': self.date, 'amount': self.amount,
+                      'vendor': self.vendor, 'category': self.category, 'note': self.note, 'expense_goal': self.expense_goal}
+        return trans_dict
