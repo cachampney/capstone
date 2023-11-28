@@ -382,9 +382,9 @@ class BudgetTrackerApp(QMainWindow):
 
         # create the goal object, then add it to the dictionary
         goal = Goal()
-        goal.edit(self.name_of_goal.text(), self.begin_date.text(), self.end_date.text(),
-                    self.expense_goal_notes.text(), (float(self.goal_amount.text())), "12/12/12",
-                    self.expense_goal_category.currentText())
+        goal.init_goal(self.name_of_goal.text(), self.begin_date.text(), self.end_date.text(),
+                       self.expense_goal_notes.text(), (float(self.goal_amount.text())), "12/12/12",
+                       self.expense_goal_category.currentText())
 
         # Update budget class. This will allow us to save and load budgets easier as well as update the table
         try:
@@ -705,9 +705,10 @@ class BudgetTrackerApp(QMainWindow):
 
                 # create new object with previous cells attributes
                 new_obj = Goal()
-                new_obj.edit(new_input_line.text(), cell_to_update_obj.get("start_date"), cell_to_update_obj.get("end_date"),
-                               cell_to_update_obj.get("note"), cell_to_update_obj.get("target_amount"),
-                               cell_to_update_obj.get("date_spent"), cell_to_update_obj.get("category"))
+                new_obj.init_goal(new_input_line.text(), cell_to_update_obj.get("start_date"),
+                                  cell_to_update_obj.get("end_date"), cell_to_update_obj.get("note"),
+                                  cell_to_update_obj.get("target_amount"), cell_to_update_obj.get("date_spent"),
+                                  cell_to_update_obj.get("category"))
                 new_obj.transactions = cell_to_update_obj.transactions
 
                 # remove the previous object from the table. This will also delete it from the dictionary
