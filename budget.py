@@ -43,6 +43,8 @@ class Budget:
             self.expense_transactions.append(transaction)
             self.total_expenses += transaction.amount
         self.balance = self.total_income - self.total_expenses  # update balance
+        if transaction.expense_goal != "N/A":
+            self.link_transaction_to_expense_goal(transaction, transaction.expense_goal)
         return True
 
     def delete_transaction(self, transaction: Transaction):
@@ -70,8 +72,39 @@ class Budget:
             else:
                 self.total_expenses -= transaction.amount
         self.balance = self.total_income - self.total_expenses  # update balance
+        if transaction.expense_goal != "N/A":
+            self.unlink_transaction_from_expense_goal(transaction, transaction.expense_goal)
         return True
 
+    def new_transaction_update_goal_amount(self, transaction :Transaction):
+        """
+        Method to update amounts in the goal transaction
+
+        :param transaction: transaction to update the goal amount
+        """
+        goal = self.get_expense_goal(transaction.expense_goal)
+
+        if transaction.transaction_type == "Expense":
+            goal.calc_currentAmount(transaction.amount)
+            return goal
+        else:
+            goal.remove_currentAmount(transaction.amount)
+            return goal
+
+    def update_transaction_expense_goal_cell(self, transaction :Transaction):
+        """
+        Method to update a cell and goal when the ender user updates the expense goal column
+
+        :param transaction: transaction to update a cell in the transaction table
+        """
+        goal = self.get_expense_goal(transaction.expense_goal)
+
+        if transaction.transaction_type == "Expense":
+            goal.remove_currentAmount(transaction.amount)
+            return goal
+        else:
+            goal.calc_currentAmount(transaction.amount)
+            return goal
     def get_transactions(self, **kwargs):
         """
         Method to get list of transactions based on specified attribute values
@@ -197,20 +230,58 @@ class Budget:
         budget_dict = read_json_file(filename)
         self.categories = budget_dict['categories']
         for trans_dict in budget_dict['expense_transactions']:
-            t = transaction.Transaction(trans_dict['transaction_type'], trans_dict['date'],
-                                        trans_dict['amount'], trans_dict['vendor'], trans_dict['category'],
-                                        trans_dict['note'])
+            t = Transaction()
+            t.update_from_dict(trans_dict)
             self.add_transaction(t)
         for trans_dict in budget_dict['income_transactions']:
-            t = transaction.Transaction(trans_dict['transaction_type'], trans_dict['date'],
-                                        trans_dict['amount'], trans_dict['vendor'], trans_dict['category'],
-                                        trans_dict['note'])
+            t = Transaction()
+            t.update_from_dict(trans_dict)
             self.add_transaction(t)
         for goal_dict in budget_dict['goals']:
-            g = Goal(goal_dict["name"], goal_dict["start_date"], goal_dict["end_date"], goal_dict["note"],
-                     goal_dict['target_amount'], goal_dict["date_spent"], goal_dict["category"])
+            g = Goal()
+            g.update_from_dict(goal_dict)
             self.add_expense_goal(g)
 
+    def delete_budget(self, filename):
+        """
+        Function to delete a saved budget
+
+        :param filename: full filepath of budget save file
+        :type filename: str
+        :return: None
+        """
+        if os.path.exists(filename):
+            os.remove(filename)
+
+    def link_transaction_to_expense_goal(self, transaction, expense_goal_name):
+        """
+        Method to link transaction to a goal
+
+        :param transaction: transaction to apply to goal
+        :type transaction: Transaction
+        :param expense_goal_name: Name of expense goal to link transaction to
+        :type expense_goal_name: str
+        :return: None
+        """
+        try:
+            self.expense_goals['expense_goal_name'].apply_transaction(transaction)
+        except KeyError:
+            print('goal does not exist')
+
+    def unlink_transaction_from_expense_goal(self, transaction, expense_goal_name):
+        """
+        Method to remove transaction from expense goal
+
+        :param transaction: transaction to apply to goal
+        :type transaction: Transaction
+        :param expense_goal_name: Name of expense goal to link transaction to
+        :type expense_goal_name: str
+        :return: None
+        """
+        try:
+            self.expense_goals['expense_goal_name'].remove_transaction(transaction)
+        except KeyError:
+            print('goal does not exist in budget')
 
 def write_json_to_file(json_data, filename):
     """
