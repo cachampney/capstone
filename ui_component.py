@@ -807,7 +807,8 @@ class BudgetTrackerApp(QMainWindow):
             self.budget.delete_budget(budget_name)
 
     def export_budget_dialog(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Export Budget", "", "Excel Files (*.xlsx)")
+        #file_path, _ = QFileDialog.getOpenFileName(self, "Export Budget", "", "Excel Files (*.xlsx)")
+        file_path, _ = QFileDialog.getSaveFileName(self, "Export Budget", "", "Excel Files (*.xlsx)")
         if file_path:
             budget_name = os.path.splitext(os.path.basename(file_path))[0]
             budget_name += ".xlsx"
