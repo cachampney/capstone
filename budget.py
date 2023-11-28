@@ -8,6 +8,7 @@ import json
 import transaction
 from goal import Goal
 from transaction import Transaction
+import openpyxl
 
 
 class Budget:
@@ -282,6 +283,26 @@ class Budget:
             self.expense_goals['expense_goal_name'].remove_transaction(transaction)
         except KeyError:
             print('goal does not exist in budget')
+
+    def export_transactions(self, filename):
+        """
+        Method to write income and expense transactions to Excel file
+
+        :param filename: filename, including path, for save file
+        :type filename: str
+        :return: None
+        """
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
+        transactions = self.expense_transactions + self.income_transactions
+        headers = list(transactions[0].keys())
+        for col_num, header in enumerate(headers, 1):
+            sheet.cell(row=1, column=col_num, value=header)
+        for row_num, row_data in enumerate(transactions, 2):
+            for col_num, key in enumerate(headers, 1):
+                sheet.cell(row=row_num, column=col_num, value=row_data[key])
+        workbook.save(filename)
+
 
 def write_json_to_file(json_data, filename):
     """
