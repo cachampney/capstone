@@ -76,14 +76,12 @@ class Goal:
     # Also updates the amount left torwards the goal
     def calc_currentAmount(self, trans_amount):
         self.current_amount += trans_amount
-        self.amount_left -= self.current_amount
         self.set_updateBalance()
    
     # Calculates the current amount torwards a goal when a transaction is removed from it
     # Also updates the amount left torwards the goal
     def remove_currentAmount(self, trans_amount):
         self.current_amount -= trans_amount
-        self.amount_left -= self.current_amount
         self.set_updateBalance()
 
     def apply_transaction(self, transaction):
