@@ -192,7 +192,7 @@ class BudgetTrackerApp(QMainWindow):
             self.name_of_goal = QLineEdit()
             self.begin_date = QLineEdit()
             self.end_date = QLineEdit()
-            self.date_spent = QLineEdit()
+            # self.date_spent = QLineEdit()
             self.goal_amount = QLineEdit()
             self.expense_goal_category = QComboBox()
             self.expense_goal_notes = QLineEdit()
@@ -218,7 +218,7 @@ class BudgetTrackerApp(QMainWindow):
             # Verify goal amounts and goal date format
             self.begin_date.editingFinished.connect(lambda: self.validate_date(self.begin_date))
             self.end_date.editingFinished.connect(lambda: self.validate_date(self.end_date))
-            self.date_spent.editingFinished.connect(lambda: self.validate_date(self.date_spent))
+            # self.date_spent.editingFinished.connect(lambda: self.validate_date(self.date_spent))
             self.goal_amount.editingFinished.connect(lambda: self.validate_amount(self.goal_amount))
 
             # Add Name of goal to the first row
@@ -239,20 +239,13 @@ class BudgetTrackerApp(QMainWindow):
 
             # Add Amount spent, Date spent, and amount goal to the third row
             expense_third_row_layout = QHBoxLayout()
-            expense_third_row_layout.addWidget(QLabel("Date Spent: "))
-            expense_third_row_layout.addWidget(self.date_spent)
+            # expense_third_row_layout.addWidget(QLabel("Date Spent: "))
+            # expense_third_row_layout.addWidget(self.date_spent)
+            expense_third_row_layout.addWidget(QLabel("Category: "))
+            expense_third_row_layout.addWidget(self.expense_goal_category)
             expense_third_row_layout.addWidget(QLabel("Expense Goal Note: "))
             expense_third_row_layout.addWidget(self.expense_goal_notes)
             expense_goal_tab_layout.addLayout(expense_third_row_layout)
-
-            # Add Category and Goal amount to the fourth row
-            expense_fourth_row_layout = QHBoxLayout()
-            expense_fourth_row_layout.addWidget(QLabel("Category: "))
-            expense_fourth_row_layout.addWidget(self.expense_goal_category)
-            expense_fourth_row_layout.addStretch(1)
-            expense_fourth_row_layout.addWidget(QLabel(f"Goal Amount: ")) #Don't forget to come back to add the goal amt
-            expense_fourth_row_layout.addStretch(1)
-            expense_goal_tab_layout.addLayout(expense_fourth_row_layout)
 
             # Add buttons to add a goal, edit, remove, or save a goal
             expense_goal_tab_layout.addWidget(self.add_goal_button)
@@ -350,6 +343,19 @@ class BudgetTrackerApp(QMainWindow):
                 # Remove the goal object from its respective list
                 self.budget.delete_expense_goal(budget_obj.name)
 
+                # set all transactions that have this goal in the last column to "N/A"
+                set_na_transactions = self.transaction_table.findItems(budget_obj.name, Qt.MatchContains)
+
+                for transaction_item in set_na_transactions:
+                    row = transaction_item.row()
+                    column = transaction_item.column()
+                    change_in_table = self.transaction_table.item(row, 0)
+                    trans_obj = change_in_table.data(Qt.UserRole)
+
+                    if column == 6:
+                        self.transaction_table.setItem(row, column, QTableWidgetItem("N/A"))
+                        trans_obj.update_attribute("expense_goal", "N/A")
+
                 # update the goal Q Combo Box
                 self.expense_goals.clear()
                 self.expense_goals.addItem("N/A")
@@ -371,13 +377,13 @@ class BudgetTrackerApp(QMainWindow):
             return
         if not self.line_empty(self.end_date.text(), "End Date"):
             return
-        if not self.line_empty(self.date_spent.text(), "Date Spent"):
-            return
+        # if not self.line_empty(self.date_spent.text(), "Date Spent"):
+           # return
 
         # create the goal object, then add it to the dictionary
         goal = Goal()
         goal.edit(self.name_of_goal.text(), self.begin_date.text(), self.end_date.text(),
-                    self.expense_goal_notes.text(), (float(self.goal_amount.text())), self.date_spent.text(),
+                    self.expense_goal_notes.text(), (float(self.goal_amount.text())), "12/12/12",
                     self.expense_goal_category.currentText())
 
         # Update budget class. This will allow us to save and load budgets easier as well as update the table
@@ -449,6 +455,7 @@ class BudgetTrackerApp(QMainWindow):
                 if column == 0:
                     row_position = row
             expense_goal_object_name = QTableWidgetItem(goal_name)
+            expense_goal_object_name.setData(Qt.UserRole, goal_object)
         else:
             row_position = self.expense_goal_table.rowCount()
             # Create a variable, so we can store the object into the QTableWidget. This will allow us to pull this
@@ -516,7 +523,7 @@ class BudgetTrackerApp(QMainWindow):
             # validate that the updates hold the same restrictions as initial input
             save_changes_button.clicked.connect(lambda: self.validate_transaction_updates(column, new_input_line,
                                                                                           update_cell_dialog))
-            
+
         elif column == 4:
             new_input_line = QComboBox()
             for index, category in enumerate(self.budget.categories):
@@ -555,11 +562,13 @@ class BudgetTrackerApp(QMainWindow):
                 transaction_obj.update_attribute("transaction_type", new_input_line.currentText())
                 self.transaction_table.setItem(row, column, QTableWidgetItem(new_input_line.currentText()))
                 self.budget.add_transaction(transaction_obj)
+                self.update_under_table_hud()
                 if transaction_obj.expense_goal != "N/A":
                     # add_transaction auto updates goal amounts
                     # self.budget.new_transaction_update_goal_amount(transaction_obj)
                     goal = self.budget.get_expense_goal(transaction_obj.expense_goal)
                     self.add_expense_goal_list_to_table(goal)
+                    self.update_under_table_hud()
             elif column == 2:
                 self.budget.update_transaction_expense_goal_cell(transaction_obj)
                 transaction_obj.update_attribute("amount", float(new_input_line.text()))
@@ -582,15 +591,18 @@ class BudgetTrackerApp(QMainWindow):
                 new_trans_string = new_input_line.currentText()
                 if new_trans_string != original_trans_string:
                     if new_trans_string != "N/A" and original_trans_string == "N/A":
+                        self.budget.delete_transaction(transaction_obj)
                         transaction_obj.update_attribute("expense_goal", new_input_line.currentText())
+                        self.budget.add_transaction(transaction_obj)
                         self.transaction_table.setItem(row, column, QTableWidgetItem(new_input_line.currentText()))
-                        self.add_expense_goal_list_to_table(self.budget.new_transaction_update_goal_amount(transaction_obj))
-                        self.update
+                        self.add_expense_goal_list_to_table(self.budget.get_expense_goal(new_trans_string))
                     elif new_trans_string != "N/A" and original_trans_string != "N/A":
                         goal = self.budget.get_expense_goal(transaction_obj.expense_goal)
                         self.budget.update_transaction_expense_goal_cell(transaction_obj)
                         self.add_expense_goal_list_to_table(goal)
+                        self.budget.delete_transaction(transaction_obj)
                         transaction_obj.update_attribute("expense_goal", new_input_line.currentText())
+                        self.budget.add_transaction(transaction_obj)
                         self.transaction_table.setItem(row, column, QTableWidgetItem(new_input_line.currentText()))
                         self.add_expense_goal_list_to_table(self.budget.new_transaction_update_goal_amount(transaction_obj))
                     elif new_trans_string == "N/A":
@@ -599,8 +611,7 @@ class BudgetTrackerApp(QMainWindow):
                         self.add_expense_goal_list_to_table(goal)
                         transaction_obj.update_attribute("expense_goal", new_input_line.currentText())
                         self.transaction_table.setItem(row, column, QTableWidgetItem(new_input_line.currentText()))
-
-
+                        print("N/A")
 
     # calls methods below to verify actual data validation
     def validate_transaction_updates(self, column, new_input_line, update_cell_dialog):
@@ -636,6 +647,7 @@ class BudgetTrackerApp(QMainWindow):
         if current_column in (4, 6):
             QMessageBox.warning(self, "None Editable Cell", f"{self.expense_header_labels[current_column]} "
                                                       f"is not an editable cell")
+            return
 
         # create a dialog box to update the cells
         update_cell_dialog = QDialog()
@@ -692,9 +704,11 @@ class BudgetTrackerApp(QMainWindow):
             if column == 0:
 
                 # create new object with previous cells attributes
-                new_obj = Goal(new_input_line.text(), cell_to_update_obj.get("start_date"), cell_to_update_obj.get("end_date"),
+                new_obj = Goal()
+                new_obj.edit(new_input_line.text(), cell_to_update_obj.get("start_date"), cell_to_update_obj.get("end_date"),
                                cell_to_update_obj.get("note"), cell_to_update_obj.get("target_amount"),
                                cell_to_update_obj.get("date_spent"), cell_to_update_obj.get("category"))
+                new_obj.transactions = cell_to_update_obj.transactions
 
                 # remove the previous object from the table. This will also delete it from the dictionary
                 self.remove_from_table(self.expense_goal_table)
@@ -716,12 +730,14 @@ class BudgetTrackerApp(QMainWindow):
             elif column == 5:
                 cell_to_update_obj.update_attribute("target_amount", new_input_line.text())
                 self.expense_goal_table.setItem(row, column, QTableWidgetItem(new_input_line.text()))
+                self.expense_goal_table.setItem(row, 6, QTableWidgetItem(str(cell_to_update_obj.get("amount_left"))))
             elif column == 7:
                 cell_to_update_obj.update_attribute("note", new_input_line.text())
                 self.expense_goal_table.setItem(row, column, QTableWidgetItem(new_input_line.text()))
 
         # update the goal Q Combo Box
         self.expense_goals.clear()
+        self.expense_goals.addItem("N/A")
         for expense_goal_index, expense_goal_name in enumerate(self.budget.expense_goals):
             self.expense_goals.addItem(expense_goal_name)
 
@@ -788,14 +804,14 @@ class BudgetTrackerApp(QMainWindow):
         if file_path:
             budget_name = os.path.splitext(os.path.basename(file_path))[0]
             budget_name += ".txt"
-            self.budget.delete_budget.delete_encounter(budget_name)
+            self.budget.delete_budget(budget_name)
 
     def export_budget_dialog(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Export Budget", "", "Excel Files (*.xlsx)")
         if file_path:
             budget_name = os.path.splitext(os.path.basename(file_path))[0]
             budget_name += ".xlsx"
-            self.budget.export_transactions.delete_encounter(budget_name)
+            self.budget.export_transactions(budget_name)
 
 
     '''
@@ -853,9 +869,9 @@ class BudgetTrackerApp(QMainWindow):
                 self.begin_date.setFocus()
             elif line_name == "End Date":
                 self.end_date.setFocus()
-            elif line_name == "Date Spent":
-                self.date_spent.setFocus()
-            return False
+            # elif line_name == "Date Spent":
+               # self.date_spent.setFocus()
+            # return False
         else:
             return True
     '''
@@ -881,7 +897,7 @@ class BudgetTrackerApp(QMainWindow):
         self.goal_amount.clear()
         self.begin_date.clear()
         self.end_date.clear()
-        self.date_spent.clear()
+        # self.date_spent.clear()
         self.expense_goal_notes.clear()
     '''
     end updating and clearing UI as needed
