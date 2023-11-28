@@ -25,7 +25,11 @@ class Goal:
         self.target_amount = target_amount
         self.date_spent = date_spent
         self.category = category
-        
+
+    def init_goal(self, name, start_date, end_date, note, target_amount, date_spent, category):
+        self.edit(name, start_date, end_date, note, target_amount, date_spent, category)
+        self.amount_left = target_amount
+
     def get(self, attribute):
 
         """
