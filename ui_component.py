@@ -462,7 +462,8 @@ class BudgetTrackerApp(QMainWindow):
             # exact object back out when we delete it from the table.
             expense_goal_object_name = QTableWidgetItem(goal_object.name)
             expense_goal_object_name.setData(Qt.UserRole, goal_object)
-            goal_object.set_startBalance()
+            # start balance is now set in init_goal() method of goal object
+            # goal_object.set_startBalance()
             self.expense_goal_table.insertRow(row_position)
 
         # Use row-position as the row index for setting items
