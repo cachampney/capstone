@@ -294,11 +294,14 @@ class Budget:
         """
         workbook = openpyxl.Workbook()
         sheet = workbook.active
-        transactions = self.expense_transactions + self.income_transactions
-        headers = list(transactions[0].keys())
+        transaction_objs = self.expense_transactions + self.income_transactions
+        transaction_dicts = []
+        for trans in transaction_objs:
+            transaction_dicts.append(trans.to_dict())
+        headers = list(transaction_dicts[0].keys())
         for col_num, header in enumerate(headers, 1):
             sheet.cell(row=1, column=col_num, value=header)
-        for row_num, row_data in enumerate(transactions, 2):
+        for row_num, row_data in enumerate(transaction_dicts, 2):
             for col_num, key in enumerate(headers, 1):
                 sheet.cell(row=row_num, column=col_num, value=row_data[key])
         workbook.save(filename)
