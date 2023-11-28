@@ -4,7 +4,7 @@ Module containing budget class
 
 
 import json
-
+import os
 import transaction
 from goal import Goal
 from transaction import Transaction
