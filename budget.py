@@ -17,14 +17,14 @@ class Budget:
     """
 
     def __init__(self):
-        self.expense_transactions = []
-        self.income_transactions = []
-        self.categories = ["Utilities", "Gas", "Entertainment", "Rent/Housing",
-                           "Groceries", "Other"]
-        self.expense_goals = {}  # name of goal is key and Goal object is value
-        self.total_expenses = 0
-        self.total_income = 0
-        self.balance = 0
+        self.expense_transactions: list[Transaction] = []
+        self.income_transactions: list[Transaction] = []
+        self.categories: list[str] = ["Utilities", "Gas", "Entertainment", "Rent/Housing",
+                                      "Groceries", "Other"]
+        self.expense_goals: dict[str, Goal] = {}  # name of goal is key and Goal object is value
+        self.total_expenses: float = 0
+        self.total_income: float = 0
+        self.balance: float = 0
 
     def add_transaction(self, transaction: Transaction):
         """
@@ -115,6 +115,7 @@ class Budget:
 
         :param kwargs: keyword arguments (key=value) to get transactions based on
         :return: [Transaction] - list of Transactions, empty if no matching transactions found
+        :rtype: list[Transaction]
         """
         trans_to_return = []  # empty list to hold transactions to return
         valid_keys = ['transaction_type', 'date', 'amount', 'vendor', 'category', 'note']
@@ -201,7 +202,7 @@ class Budget:
         except KeyError:
             raise ValueError(f"Could not delete goal {goal_name}. It was not found in the budget")
 
-    def save_budget(self, filename):
+    def save_budget(self, filename: str):
         """
         Method to save all budget data to specified file
 
@@ -221,7 +222,7 @@ class Budget:
             budget_dict['goals'].append(goal.to_dict())
         write_json_to_file(budget_dict, filename)
 
-    def load_budget(self, filename):
+    def load_budget(self, filename:str):
         """
         Method to load all budget data from specified file
 
@@ -251,7 +252,7 @@ class Budget:
             t.update_from_dict(trans_dict)
             self.add_transaction(t)
 
-    def delete_budget(self, filename):
+    def delete_budget(self, filename: str):
         """
         Function to delete a saved budget
 
@@ -262,7 +263,7 @@ class Budget:
         if os.path.exists(filename):
             os.remove(filename)
 
-    def link_transaction_to_expense_goal(self, transaction, expense_goal_name):
+    def link_transaction_to_expense_goal(self, transaction: Transaction, expense_goal_name: str):
         """
         Method to link transaction to a goal
 
@@ -277,7 +278,7 @@ class Budget:
         except KeyError:
             print('goal does not exist')
 
-    def unlink_transaction_from_expense_goal(self, transaction, expense_goal_name):
+    def unlink_transaction_from_expense_goal(self, transaction: Transaction, expense_goal_name: str):
         """
         Method to remove transaction from expense goal
 
@@ -292,7 +293,7 @@ class Budget:
         except KeyError:
             print('goal does not exist in budget')
 
-    def export_transactions(self, filename):
+    def export_transactions(self, filename: str):
         """
         Method to write income and expense transactions to Excel file
 
@@ -315,7 +316,7 @@ class Budget:
         workbook.save(filename)
 
 
-def write_json_to_file(json_data, filename):
+def write_json_to_file(json_data: dict | list | str | int, filename: str):
     """
     Function to write json encode-able data to specified file
 
@@ -329,7 +330,7 @@ def write_json_to_file(json_data, filename):
         json.dump(json_data, json_file)
 
 
-def read_json_file(filename):
+def read_json_file(filename: str):
     """
     Function to open json file and read in data as dictionary
 
