@@ -91,12 +91,14 @@ class Goal:
         """
         return self.__getattribute__(attribute)
 
-    def update_attribute(self, attribute: str, value: any):
+    def update_attribute(self, attribute: str, value: str | float):
         """
-        Method to update specified attribute with specified valute
+        Method to update specified attribute with specified value
+
         :param attribute: name of attribute to update
         :type attribute: str
         :param value: Value to set for attribute
+        :type value: str | float
         :return: None
         """
         if hasattr(self, attribute):
