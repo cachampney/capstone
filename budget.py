@@ -5,7 +5,6 @@ Module containing budget class
 
 import json
 import os
-import transaction
 from goal import Goal
 from transaction import Transaction
 import openpyxl
@@ -17,6 +16,9 @@ class Budget:
     """
 
     def __init__(self):
+        """
+        Init
+        """
         self.expense_transactions: list[Transaction] = []
         self.income_transactions: list[Transaction] = []
         self.categories: list[str] = ["Utilities", "Gas", "Entertainment", "Rent/Housing",
@@ -33,6 +35,7 @@ class Budget:
         :param transaction: transaction to add to budget
         :type transaction: Transaction
         :return: bool - True if transaction added successful, False if not
+        :rtype: bool
         """
         # validate transaction
         if not transaction or not isinstance(transaction, Transaction):
@@ -55,6 +58,7 @@ class Budget:
         :param transaction: transaction to delete
         :type transaction: Transaction
         :return: bool - True if transaction removed, False if not (likely transaction was not in list)
+        :rtype: bool
         """
         if not transaction or not isinstance(transaction, Transaction):
             raise ValueError("Transaction must not be empty and must be of type Transaction")
@@ -77,11 +81,14 @@ class Budget:
             self.unlink_transaction_from_expense_goal(transaction, transaction.expense_goal)
         return True
 
-    def new_transaction_update_goal_amount(self, transaction :Transaction):
+    def new_transaction_update_goal_amount(self, transaction: Transaction):
         """
         Method to update amounts in the goal transaction
 
         :param transaction: transaction to update the goal amount
+        :type transaction: Transaction
+        :return: goal updated
+        :rtype: Goal
         """
         goal = self.get_expense_goal(transaction.expense_goal)
 
@@ -92,11 +99,14 @@ class Budget:
             goal.remove_currentAmount(transaction.amount)
             return goal
 
-    def update_transaction_expense_goal_cell(self, transaction :Transaction):
+    def update_transaction_expense_goal_cell(self, transaction: Transaction):
         """
         Method to update a cell and goal when the ender user updates the expense goal column
 
         :param transaction: transaction to update a cell in the transaction table
+        :type transaction: Transaction
+        :return: goal updated
+        :rtype: Goal
         """
         goal = self.get_expense_goal(transaction.expense_goal)
 
@@ -183,6 +193,7 @@ class Budget:
         :param goal_name: name of goal to retrieve from budget
         :type goal_name: str
         :return: Goal - desired expense goal
+        :rtype: Goal
         """
         try:
             return self.expense_goals[goal_name.lower()]
