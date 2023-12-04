@@ -12,7 +12,8 @@ from budget import Budget
 from goal import Goal
 
 
-def insert_layout(update_cell_dialog, new_input_line, save_changes_button, layout, prompt):
+def insert_layout(update_cell_dialog: QDialog, new_input_line: QLineEdit, save_changes_button: QPushButton,
+                  layout: QVBoxLayout, prompt: QLabel):
     save_layout_first_row = QHBoxLayout()  # Create a QHBoxLayout instance
     save_layout_first_row.addWidget(new_input_line)
 
@@ -503,7 +504,7 @@ class BudgetTrackerApp(QMainWindow):
         self.save_transaction_changes(update_cell_dialog, current_row, current_column)
 
     # called from the method above
-    def save_transaction_changes(self, update_cell_dialog, row, column):
+    def save_transaction_changes(self, update_cell_dialog: QDialog, row, column):
         # create save button for update_cell_dialog
         save_changes_button = QPushButton("Save")
 
