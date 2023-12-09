@@ -1,6 +1,9 @@
 from transaction import Transaction
 
 
+#
+# add expense goal (Requirement 1.2.11)
+#
 class Goal:
     
     def __init__(self):
@@ -49,6 +52,9 @@ class Goal:
         self.date_spent = date_spent
         self.category = category
 
+    #
+    # add expense goal (Requirement 1.2.11)
+    #
     def init_goal(self, name: str, start_date: str, end_date: str, note: str, target_amount: float, date_spent: str,
                   category: str):
         """
@@ -91,6 +97,9 @@ class Goal:
         """
         return self.__getattribute__(attribute)
 
+    #
+    # save goal changes (Requirement 1.2.14)
+    #
     def update_attribute(self, attribute: str, value: str | float):
         """
         Method to update specified attribute with specified value
@@ -106,6 +115,9 @@ class Goal:
         else:
             raise AttributeError(f"'Goal' object has no attribute '{attribute}'")
 
+    #
+    # save budget (Requirement 1.3.6)
+    #
     def to_dict(self):
         """
         Method to encode goal as python dictionary
@@ -118,6 +130,9 @@ class Goal:
                      'current_amount': self.current_amount, 'amount_left': self.amount_left}
         return goal_dict
 
+    #
+    # load budget (Requirement 1.3.7)
+    #
     def update_from_dict(self, goal_dict: dict[str, float | str]):
         """
         method to update goal using provided dictionary
@@ -148,6 +163,9 @@ class Goal:
     # Used for when the user goes to change the balance goal amount
     # This way the amount left towards goal will refelct those changes and update
     # If there is anything within the current amount torwards the goal it will also be reflected
+    #
+    # save transaction updates (requirement 1.3.3)
+    #
     def set_updateBalance(self):
         """
         Method to update balance towards goal amount
@@ -158,6 +176,9 @@ class Goal:
 
     # Calculates the current amount torwards the goal when a transaction is added to it
     # Also updates the amount left torwards the goal
+    #
+    # save transaction updates (requirement 1.3.3)
+    #
     def calc_currentAmount(self, trans_amount: float):
         """
         Method to calculate the current and adding amount
@@ -171,6 +192,9 @@ class Goal:
    
     # Calculates the current amount torwards a goal when a transaction is removed from it
     # Also updates the amount left torwards the goal
+    #
+    # save transaction updates (requirement 1.3.3)
+    #
     def remove_currentAmount(self, trans_amount: float):
         """
         Method to calculate current amount after removing amount
@@ -182,6 +206,9 @@ class Goal:
         self.current_amount -= trans_amount
         self.set_updateBalance()
 
+    #
+    # create transaction with goal (requirement 1.3.9)
+    #
     def apply_transaction(self, transaction: Transaction):
         """
         Method to apply a transaction to the goal
@@ -196,6 +223,9 @@ class Goal:
             self.calc_currentAmount(transaction.amount)
         self.transactions.append(transaction)
 
+    #
+    # create transaction with goal (requirement 1.3.9)
+    #
     def remove_transaction(self, transaction: Transaction):
         """
         Method to remove a transaction from the goal

@@ -10,6 +10,9 @@ from transaction import Transaction
 import openpyxl
 
 
+#
+# add transaction (requirement 1.1.8)
+#
 class Budget:
     """
     Object representing a budget. Holds transactions and other budget related data.
@@ -24,10 +27,13 @@ class Budget:
         self.categories: list[str] = ["Utilities", "Gas", "Entertainment", "Rent/Housing",
                                       "Groceries", "Other"]
         self.expense_goals: dict[str, Goal] = {}  # name of goal is key and Goal object is value
-        self.total_expenses: float = 0
-        self.total_income: float = 0
+        self.total_expenses: float = 0  # total expenses under table (Requirement 1.1.10)
+        self.total_income: float = 0  # total income under table (Requirement 1.2.3)
         self.balance: float = 0
 
+    #
+    # add transaction (requirement 1.1.8)
+    #
     def add_transaction(self, transaction: Transaction):
         """
         Method to add transaction to budget
@@ -40,9 +46,14 @@ class Budget:
         # validate transaction
         if not transaction or not isinstance(transaction, Transaction):
             raise ValueError("Transaction must not be empty and must be of type Transaction")
+
+        #
+        # add income transaction (requirement 1.2.1)
+        #
         if transaction.transaction_type.lower() == 'income':
             self.income_transactions.append(transaction)
             self.total_income += transaction.amount
+
         if transaction.transaction_type.lower() == 'expense':
             self.expense_transactions.append(transaction)
             self.total_expenses += transaction.amount
@@ -51,6 +62,9 @@ class Budget:
             self.link_transaction_to_expense_goal(transaction, transaction.expense_goal)
         return True
 
+    #
+    # remove transaction (requirement 1.1.9)
+    #
     def delete_transaction(self, transaction: Transaction):
         """
         Method to delete transaction from budget
@@ -62,6 +76,10 @@ class Budget:
         """
         if not transaction or not isinstance(transaction, Transaction):
             raise ValueError("Transaction must not be empty and must be of type Transaction")
+
+        #
+        # add income transaction (requirement 1.2.1)
+        #
         if transaction.transaction_type.lower() == 'income':
             try:
                 self.income_transactions.remove(transaction)
@@ -69,6 +87,7 @@ class Budget:
                 return False
             else:
                 self.total_income -= transaction.amount
+
         if transaction.transaction_type.lower() == 'expense':
             try:
                 self.expense_transactions.remove(transaction)
@@ -81,6 +100,9 @@ class Budget:
             self.unlink_transaction_from_expense_goal(transaction, transaction.expense_goal)
         return True
 
+    #
+    # save transaction updates (requirement 1.3.3)
+    #
     def new_transaction_update_goal_amount(self, transaction: Transaction):
         """
         Method to update amounts in the goal transaction
@@ -99,6 +121,9 @@ class Budget:
             goal.remove_currentAmount(transaction.amount)
             return goal
 
+    #
+    # save transaction updates (requirement 1.3.3)
+    #
     def update_transaction_expense_goal_cell(self, transaction: Transaction):
         """
         Method to update a cell and goal when the ender user updates the expense goal column
@@ -170,6 +195,9 @@ class Budget:
         except ValueError:
             print(f"Could not delete Category {category}. It was not found in the budget")
 
+    #
+    # add expense goal (Requirement 1.2.11)
+    #
     def add_expense_goal(self, goal: Goal):
         """
         method to add an expanse goal to the budget
@@ -186,6 +214,9 @@ class Budget:
             raise ValueError(f"Goal with name {goal.name} already exists in budget")
         self.expense_goals[goal.name.lower()] = goal
 
+    #
+    # save transaction updates (requirement 1.3.3)
+    #
     def get_expense_goal(self, goal_name: str):
         """
         Method to get goal from Budget for specified name
@@ -200,6 +231,9 @@ class Budget:
         except KeyError:
             raise ValueError(f"goal with name {goal_name} not found in budget")
 
+    #
+    # remove transaction (requirement 1.1.9)
+    #
     def delete_expense_goal(self, goal_name: str):
         """
         Method to delete goal with specified name from Budget
@@ -213,6 +247,9 @@ class Budget:
         except KeyError:
             raise ValueError(f"Could not delete goal {goal_name}. It was not found in the budget")
 
+    #
+    # save budget (Requirement 1.3.6)
+    #
     def save_budget(self, filename: str):
         """
         Method to save all budget data to specified file
@@ -233,7 +270,10 @@ class Budget:
             budget_dict['goals'].append(goal.to_dict())
         write_json_to_file(budget_dict, filename)
 
-    def load_budget(self, filename:str):
+    #
+    # load budget (Requirement 1.3.7)
+    #
+    def load_budget(self, filename: str):
         """
         Method to load all budget data from specified file
 
@@ -263,6 +303,9 @@ class Budget:
             t.update_from_dict(trans_dict)
             self.add_transaction(t)
 
+    #
+    # delete budget (Requirement 1.3.8)
+    #
     def delete_budget(self, filename: str):
         """
         Function to delete a saved budget
@@ -274,6 +317,9 @@ class Budget:
         if os.path.exists(filename):
             os.remove(filename)
 
+    #
+    # create transaction with goal (requirement 1.3.9)
+    #
     def link_transaction_to_expense_goal(self, transaction: Transaction, expense_goal_name: str):
         """
         Method to link transaction to a goal
@@ -289,6 +335,9 @@ class Budget:
         except KeyError:
             print('goal does not exist')
 
+    #
+    # create transaction with goal (requirement 1.3.9)
+    #
     def unlink_transaction_from_expense_goal(self, transaction: Transaction, expense_goal_name: str):
         """
         Method to remove transaction from expense goal
@@ -304,6 +353,9 @@ class Budget:
         except KeyError:
             print('goal does not exist in budget')
 
+    #
+    # export transactions (Requirement 1.3.5)
+    #
     def export_transactions(self, filename: str):
         """
         Method to write income and expense transactions to Excel file
@@ -327,6 +379,9 @@ class Budget:
         workbook.save(filename)
 
 
+#
+# save budget (Requirement 1.3.6)
+#
 def write_json_to_file(json_data: dict | list | str | int, filename: str):
     """
     Function to write json encode-able data to specified file
@@ -341,6 +396,9 @@ def write_json_to_file(json_data: dict | list | str | int, filename: str):
         json.dump(json_data, json_file)
 
 
+#
+# load budget (Requirement 1.3.7)
+#
 def read_json_file(filename: str):
     """
     Function to open json file and read in data as dictionary

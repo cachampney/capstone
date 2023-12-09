@@ -3,6 +3,9 @@ Module for Transaction Class
 """
 
 
+#
+# add transaction (requirement 1.1.8)
+#
 class Transaction:
     """
     transaction_type : str
@@ -30,6 +33,9 @@ class Transaction:
         self.note: str = None
         self.expense_goal: str = None
 
+    #
+    # load budget (Requirement 1.3.7)
+    #
     def update_from_dict(self, transaction_dict: dict[str, str | float]):
         """
         Method to set attributes from dictionary
@@ -46,6 +52,9 @@ class Transaction:
         self.note = transaction_dict['note']
         self.expense_goal = transaction_dict['expense_goal']
 
+    #
+    # remove transaction (requirement 1.1.9)
+    #
     def update_attribute(self, attribute: str, value: str | float):
         """
         Method to update specified attribute with specified value
@@ -61,6 +70,9 @@ class Transaction:
         else:
             raise AttributeError(f"'Transaction' object has no attribute '{attribute}'")
 
+    #
+    # add transaction (requirement 1.1.8)
+    #
     def edit(self, transaction_type: str, date: str, amount: float, vendor: str, category: str, note: str,
              expense_goal: str):
         # --------------------------------------------------------------------------------------
@@ -95,6 +107,9 @@ class Transaction:
         self.note = note
         self.expense_goal = expense_goal
 
+    #
+    # add transaction (requirement 1.1.8)
+    #
     def get(self, attribute: str):
         """
         function to get value of specified attribute of transaction object
@@ -106,6 +121,9 @@ class Transaction:
         """
         return self.__getattribute__(attribute)
 
+    #
+    # export transactions (Requirement 1.3.5)
+    #
     def to_dict(self):
         """
         Method to encode transaction as python dictionary
